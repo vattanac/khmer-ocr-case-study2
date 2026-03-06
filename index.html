@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KhmerOCR — Complete Project Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+Khmer:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── DARK MODE (default) ────────────────────────────────────────────────── */
+:root {
+  --bg:        #0A0E1A;
+  --bg2:       #0F1525;
+  --bg3:       #151C30;
+  --surface:   #1A2240;
+  --surface2:  #1E2845;
+  --border:    #2A3660;
+  --border2:   #3A4880;
+  --gold:      #F0B429;
+  --gold2:     #FFD166;
+  --teal:      #06D6A0;
+  --teal2:     #0AEFB2;
+  --red:       #EF476F;
+  --blue:      #118AB2;
+  --blue2:     #4ECDC4;
+  --text:      #E8EDF8;
+  --text2:     #9BA8C8;
+  --text3:     #6370A0;
+  --glow-gold: 0 0 30px rgba(240,180,41,0.25);
+  --glow-teal: 0 0 30px rgba(6,214,160,0.2);
+  --nav-bg:    rgba(10,14,26,0.88);
+  --code-bg:   #0D1117;
+  --code-text: #E6EDF3;
+  --hero-grid-color: rgba(42,54,96,0.3);
+}
+
+/* ─── LIGHT MODE ─────────────────────────────────────────────────────────── */
+html.light {
+  --bg:        #F5F7FF;
+  --bg2:       #ECEFFE;
+  --bg3:       #E4E8FA;
+  --surface:   #FFFFFF;
+  --surface2:  #F0F2FF;
+  --border:    #D0D6F0;
+  --border2:   #B0BAE8;
+  --gold:      #C8860A;
+  --gold2:     #D4960F;
+  --teal:      #007A5A;
+  --teal2:     #009970;
+  --red:       #C0392B;
+  --blue:      #0A6E9A;
+  --blue2:     #2A9E98;
+  --text:      #1A1F3A;
+  --text2:     #4A5280;
+  --text3:     #8890B8;
+  --glow-gold: 0 0 30px rgba(200,134,10,0.15);
+  --glow-teal: 0 0 30px rgba(0,122,90,0.12);
+  --nav-bg:    rgba(245,247,255,0.92);
+  --code-bg:   #1E1E2E;
+  --code-text: #CDD6F4;
+  --hero-grid-color: rgba(160,170,220,0.35);
+}
+
+/* ─── THEME TOGGLE BUTTON ────────────────────────────────────────────────── */
+.theme-toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  transition: background 0.3s, border-color 0.3s;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  justify-content: space-between;
+}
+.toggle-track .t-icon { font-size: 11px; line-height: 1; user-select: none; }
+.toggle-thumb {
+  position: absolute;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  top: 3px; left: 3px;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.theme-toggle input:checked ~ .toggle-track { background: var(--bg3); border-color: var(--border2); }
+.theme-toggle input:checked ~ .toggle-thumb {
+  transform: translateX(24px);
+  background: linear-gradient(135deg, #87CEEB, #4A90D9);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.4s, color 0.4s;
+}
+
+/* ─── NOISE TEXTURE ──────────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ─── NAV ────────────────────────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 60px;
+  transition: background 0.4s, border-color 0.4s;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--gold);
+}
+.nav-logo span { color: var(--teal); }
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.nav-links a:hover { color: var(--gold); background: rgba(240,180,41,0.08); }
+
+/* ─── HERO ───────────────────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 40px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--hero-grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-grid-color) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.hero-orb-1 { width: 500px; height: 500px; background: rgba(240,180,41,0.08); top: -100px; left: -100px; animation: drift1 12s ease-in-out infinite; }
+.hero-orb-2 { width: 400px; height: 400px; background: rgba(6,214,160,0.07); bottom: -80px; right: -80px; animation: drift2 15s ease-in-out infinite; }
+.hero-orb-3 { width: 300px; height: 300px; background: rgba(17,138,178,0.08); top: 50%; left: 50%; transform: translate(-50%,-50%); animation: drift3 10s ease-in-out infinite; }
+
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
+@keyframes drift3 { 0%,100%{transform:translate(-50%,-50%)} 50%{transform:translate(-45%,-55%)} }
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(240,180,41,0.1);
+  border: 1px solid rgba(240,180,41,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge::before { content:''; width:6px; height:6px; background:var(--gold); border-radius:50%; animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+h1.hero-title {
+  font-size: clamp(60px, 10vw, 110px);
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 0.95;
+  margin-bottom: 24px;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+.hero-title .line1 { color: var(--text); display: block; }
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(135deg, var(--gold), var(--teal2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: var(--text2);
+  max-width: 560px;
+  line-height: 1.6;
+  margin-bottom: 48px;
+  font-weight: 400;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 48px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+.stat { text-align: center; }
+.stat-num { font-size: 36px; font-weight: 800; color: var(--gold); letter-spacing: -1px; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-top: 2px; }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text3);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: fadeUp 1s 0.8s ease both;
+}
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(var(--border), transparent);
+  animation: scrollLine 2s ease infinite;
+}
+@keyframes scrollLine { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── SECTIONS ───────────────────────────────────────────────────────────── */
+section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.section-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  border: 1px solid rgba(6,214,160,0.3);
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.section-title .accent { color: var(--gold); }
+
+.section-sub {
+  font-size: 16px;
+  color: var(--text2);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 48px;
+  font-weight: 400;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 0;
+}
+
+/* ─── WHAT IS IT ─────────────────────────────────────────────────────────── */
+.what-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.what-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.what-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+.what-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: var(--glow-gold); }
+.what-card:hover::before { transform: scaleX(1); }
+
+.card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+.card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.card-body { font-size: 14px; color: var(--text2); line-height: 1.6; font-weight: 400; }
+
+.highlight-box {
+  background: linear-gradient(135deg, rgba(240,180,41,0.08), rgba(6,214,160,0.05));
+  border: 1px solid rgba(240,180,41,0.2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.highlight-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+.highlight-text { min-width: 0; overflow: hidden; }
+.highlight-text h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.highlight-text p { font-size: 14px; color: var(--text2); line-height: 1.6; font-weight: 400; }
+
+/* ─── PIPELINE ───────────────────────────────────────────────────────────── */
+.pipeline {
+  position: relative;
+  padding: 20px 0;
+}
+
+.pipeline-line {
+  position: absolute;
+  left: 36px;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(var(--teal), var(--gold), var(--red));
+  opacity: 0.3;
+}
+
+.pipeline-step {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.5s;
+  position: relative;
+}
+.pipeline-step.visible { opacity: 1; transform: translateX(0); }
+
+.step-num {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+
+.step-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  flex: 1;
+  transition: all 0.3s;
+}
+.step-content:hover { border-color: var(--border2); }
+.step-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; font-weight: 400; }
+.step-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-top: 10px; font-family: 'DM Mono', monospace; }
+
+/* ─── MODELS ─────────────────────────────────────────────────────────────── */
+.models-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.model-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.model-card:hover { transform: translateY(-4px); }
+.model-card-det { border-top: 3px solid var(--gold); }
+.model-card-rec { border-top: 3px solid var(--teal); }
+
+.model-card::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  opacity: 0.05;
+}
+.model-card-det::after { background: var(--gold); }
+.model-card-rec::after { background: var(--teal); }
+
+.model-name { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+.model-card-det .model-name { color: var(--gold); }
+.model-card-rec .model-name { color: var(--teal); }
+.model-size { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; margin-bottom: 16px; }
+.model-job { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; font-weight: 400; }
+
+.model-specs { list-style: none; }
+.model-specs li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  gap: 12px;
+}
+.model-specs li:last-child { border-bottom: none; }
+.spec-key { color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.spec-val { color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px; text-align: right; }
+
+/* ─── FILE TREE ──────────────────────────────────────────────────────────── */
+.file-tree {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.tree-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tree-dot { width: 10px; height: 10px; border-radius: 50%; }
+.tree-dot-r { background: #FF5F57; }
+.tree-dot-y { background: #FFBD2E; }
+.tree-dot-g { background: #28C840; }
+.tree-name { font-size: 12px; color: var(--text3); margin-left: 8px; font-family: 'DM Mono', monospace; }
+
+.tree-body { padding: 20px; }
+
+.tree-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: background 0.2s;
+  cursor: default;
+}
+.tree-item:hover { background: var(--surface); }
+
+.tree-indent { padding-left: 28px; }
+.tree-indent2 { padding-left: 56px; }
+
+.tree-icon { font-size: 14px; min-width: 18px; }
+.tree-filename { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); min-width: 220px; }
+.tree-filename.dir { color: var(--gold); font-weight: 500; }
+.tree-filename.model { color: var(--teal); }
+.tree-filename.py { color: var(--blue2); }
+.tree-filename.cpp { color: #FF9966; }
+.tree-filename.cmake { color: #BB86FC; }
+.tree-desc { font-size: 11px; color: var(--text3); line-height: 1.4; font-weight: 400; }
+
+/* ─── CODE BLOCKS ────────────────────────────────────────────────────────── */
+.code-wrap {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  transition: border-color 0.3s;
+}
+.code-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s;
+}
+.code-lang { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; font-weight: 500; }
+.code-body { padding: 20px; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.8; overflow-x: auto; color: var(--code-text); }
+.c-comment { color: #6A737D; }
+.c-keyword { color: #FF7B72; }
+.c-func { color: #D2A8FF; }
+.c-string { color: #A5D6FF; }
+.c-num { color: #F0B429; }
+.c-var { color: #79C0FF; }
+.c-normal { color: #E6EDF3; }
+.c-type { color: #56D364; }
+
+/* ─── FEATURES TABLE ─────────────────────────────────────────────────────── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feat-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.feat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feat-card:hover::after { opacity: 0.15; }
+.feat-card:nth-child(1)::after, .feat-card:nth-child(4)::after { background: var(--gold); }
+.feat-card:nth-child(2)::after, .feat-card:nth-child(5)::after { background: var(--teal); }
+.feat-card:nth-child(3)::after, .feat-card:nth-child(6)::after { background: var(--blue); }
+
+.feat-icon { font-size: 26px; margin-bottom: 12px; display: block; }
+.feat-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.feat-desc { font-size: 12px; color: var(--text2); line-height: 1.5; font-weight: 400; }
+
+/* ─── ALGORITHMS ─────────────────────────────────────────────────────────── */
+.algo-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.algo-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+  font-family: 'Syne', sans-serif;
+}
+.algo-tab.active { background: var(--surface); color: var(--gold); }
+.algo-tab:hover:not(.active) { color: var(--text); }
+
+.algo-panel { display: none; }
+.algo-panel.active { display: block; }
+
+.algo-steps { list-style: none; counter-reset: steps; }
+.algo-steps li {
+  counter-increment: steps;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.algo-steps li:last-child { border-bottom: none; }
+.algo-steps li::before {
+  content: counter(steps);
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  background: linear-gradient(135deg, var(--gold), #E09600);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--bg);
+}
+.algo-step-text { font-size: 14px; color: var(--text2); line-height: 1.5; font-weight: 400; }
+.algo-step-text strong { color: var(--text); font-weight: 700; }
+
+/* ─── PLATFORMS ──────────────────────────────────────────────────────────── */
+.platforms {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.platform-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  cursor: default;
+}
+.platform-chip:hover { border-color: var(--teal); color: var(--teal); transform: scale(1.05); }
+.platform-chip .p-icon { font-size: 18px; }
+
+/* ─── DATA FLOW ──────────────────────────────────────────────────────────── */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.flow-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 28px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  transition: all 0.3s;
+}
+.flow-node:hover { border-color: var(--border2); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+.flow-node-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  min-width: 44px;
+}
+.flow-node-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.flow-node-desc { font-size: 11px; color: var(--text2); margin-top: 2px; font-weight: 400; }
+
+.flow-arrow {
+  width: 2px;
+  height: 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.flow-arrow::before {
+  content: '';
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(var(--teal), var(--gold));
+}
+.flow-arrow::after {
+  content: '▼';
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: -4px;
+}
+
+/* ─── INSTALL ────────────────────────────────────────────────────────────── */
+.install-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+  position: relative;
+  z-index: 1;
+}
+footer strong { color: var(--gold); }
+footer a { color: var(--teal); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ─── SCROLL REVEAL ──────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── KHMER TEXT ─────────────────────────────────────────────────────────── */
+.khmer {
+  font-family: 'Noto Serif Khmer', serif;
+  font-size: 24px;
+  color: var(--gold2);
+  letter-spacing: 2px;
+  display: block;
+  margin: 12px 0;
+}
+
+/* ─── LIGHT MODE OVERRIDES ───────────────────────────────────────────────── */
+html.light body::before { opacity: 0.15; }
+
+html.light .hero-orb-1 { background: rgba(200,134,10,0.1); }
+html.light .hero-orb-2 { background: rgba(0,122,90,0.08); }
+html.light .hero-orb-3 { background: rgba(10,110,154,0.08); }
+
+html.light .what-card,
+html.light .feat-card,
+html.light .model-card,
+html.light .step-content,
+html.light .flow-node,
+html.light .algo-tabs,
+html.light .algo-tab,
+html.light .file-tree,
+html.light .tree-header,
+html.light .highlight-box {
+  transition: background 0.4s, border-color 0.4s, color 0.4s;
+}
+
+html.light .tree-body { background: var(--bg2); }
+
+html.light .c-comment { color: #5C6370; }
+html.light .c-keyword { color: #C53030; }
+html.light .c-func    { color: #7C3AED; }
+html.light .c-string  { color: #1565C0; }
+html.light .c-num     { color: #B45309; }
+html.light .c-var     { color: #0369A1; }
+html.light .c-normal  { color: #CDD6F4; }
+html.light .c-type    { color: #166534; }
+
+html.light .divider {
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+}
+
+html.light footer { background: var(--bg2); }
+
+html.light .platform-chip:hover { border-color: var(--teal); color: var(--teal); }
+
+html.light .scroll-line {
+  background: linear-gradient(var(--border2), transparent);
+}
+
+/* Smooth transitions for all themed elements */
+nav, body, .what-card, .feat-card, .model-card, .step-content,
+.flow-node, .file-tree, .tree-item, .code-wrap, .code-header,
+.highlight-box, .algo-tabs, .algo-tab, .platform-chip,
+.pipeline-step .step-content, section, footer {
+  transition: background 0.4s, border-color 0.4s, color 0.4s, box-shadow 0.4s;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Khmer<span>OCR</span></div>
+  <ul class="nav-links">
+    <li><a href="#what">What</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#models">Models</a></li>
+    <li><a href="#files">Files</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#algorithms">Algorithms</a></li>
+    <li><a href="#flow">Data Flow</a></li>
+    <li><a href="#install">Install</a></li>
+  </ul>
+  <label class="theme-toggle" title="Toggle light/dark mode">
+    <input type="checkbox" id="themeToggle">
+    <div class="toggle-track">
+      <span class="t-icon">🌙</span>
+      <span class="t-icon">☀️</span>
+    </div>
+    <div class="toggle-thumb"></div>
+  </label>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:100%; padding-top:100px;">
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+
+  <div class="hero-badge">Complete Project Guide</div>
+
+  <h1 class="hero-title">
+    <span class="line1">Khmer</span>
+    <span class="line2">OCR</span>
+  </h1>
+
+  <p class="hero-sub">
+    A high-performance Optical Character Recognition engine for Khmer script — trained on 3 million text lines, powered by deep learning, runs everywhere.
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">3M</div>
+      <div class="stat-label">Training Lines</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">800+</div>
+      <div class="stat-label">Khmer Fonts</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">98</div>
+      <div class="stat-label">Characters</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Font Styles</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Platforms</div>
+    </div>
+  </div>
+
+  <div class="platforms" style="justify-content:center">
+    <div class="platform-chip"><span class="p-icon">🪟</span> Windows</div>
+    <div class="platform-chip"><span class="p-icon">🍎</span> macOS</div>
+    <div class="platform-chip"><span class="p-icon">🐧</span> Linux</div>
+    <div class="platform-chip"><span class="p-icon">📱</span> iOS</div>
+    <div class="platform-chip"><span class="p-icon">🤖</span> Android</div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHAT IS IT -->
+<section id="what">
+  <div class="section-tag reveal">What is it?</div>
+  <h2 class="section-title reveal">Reading Khmer Text <span class="accent">From Images</span></h2>
+  <p class="section-sub reveal">
+    KhmerOCR is like Google Lens, but built specifically for Cambodia's language. Give it a photo of any Khmer document — it gives you back editable digital text.
+  </p>
+
+  <span class="khmer reveal">ព្រះរាជាណាចក្រកម្ពុជា → "Kingdom of Cambodia"</span>
+
+  <div class="what-grid reveal">
+    <div class="what-card">
+      <span class="card-icon">📸</span>
+      <div class="card-title">Image In, Text Out</div>
+      <div class="card-body">Give it a scanned letter, newspaper photo, or government document — it reads all the Khmer text and returns it as editable content.</div>
+    </div>
+    <div class="what-card">
+      <span class="card-icon">🧠</span>
+      <div class="card-title">Two AI Models Working Together</div>
+      <div class="card-body">One model finds WHERE the text is. Another model reads WHAT it says. Together they form a complete OCR pipeline.</div>
+    </div>
+    <div class="what-card">
+      <span class="card-icon">🔤</span>
+      <div class="card-title">Font Style Detection</div>
+      <div class="card-body">Not just the text — it also detects the font style: Regular, Bold, Italic, BoldItalic, Moul, or MoulLight. Preserves document structure.</div>
+    </div>
+    <div class="what-card">
+      <span class="card-icon">📄</span>
+      <div class="card-title">Multiple Export Formats</div>
+      <div class="card-body">Export results as plain .txt, Markdown .md, styled .html, or formatted Word .docx with proper Khmer fonts applied automatically.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box reveal">
+    <div class="highlight-num">3M</div>
+    <div class="highlight-text">
+      <h3>Why KhmerOCR exists</h3>
+      <p>Khmer script is uniquely complex — stacked consonants, vowels above and below letters, 800+ font variations. Generic OCR tools like Tesseract fail badly on Khmer. This model was trained from scratch on 3 million real Khmer text lines to solve this properly.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag reveal">Capabilities</div>
+  <h2 class="section-title reveal">Everything It <span class="accent">Can Do</span></h2>
+  <div class="features-grid reveal">
+    <div class="feat-card">
+      <span class="feat-icon">🎯</span>
+      <div class="feat-title">Khmer Text Recognition</div>
+      <div class="feat-desc">Reads Khmer characters from photos, scans, PDFs — even low-quality images.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">⚡</span>
+      <div class="feat-title">ONNX Runtime Speed</div>
+      <div class="feat-desc">Runs on CPU or GPU via ONNX Runtime — optimized for inference speed on any device.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📐</span>
+      <div class="feat-title">Layout Detection</div>
+      <div class="feat-desc">Separates text regions from embedded figures and images in complex document layouts.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🔡</span>
+      <div class="feat-title">Font Style Awareness</div>
+      <div class="feat-desc">Detects Moul, Bold, Regular, Italic and applies correct fonts to .docx output automatically.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📑</span>
+      <div class="feat-title">PDF Support</div>
+      <div class="feat-desc">Processes multi-page PDFs via PyMuPDF, rendering each page at 2x resolution for accuracy.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🍎</span>
+      <div class="feat-title">Apple CoreML</div>
+      <div class="feat-desc">Convert models to .mlpackage for native iOS/macOS inference on Apple Neural Engine.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🔧</span>
+      <div class="feat-title">C++ Native Engine</div>
+      <div class="feat-desc">Full C++ implementation with C API for FFI — embed in any language: Swift, Kotlin, Dart, Rust.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🐍</span>
+      <div class="feat-title">Python Package</div>
+      <div class="feat-desc">Install with pip, use detect() and recognize() in two lines of Python code.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🎯</span>
+      <div class="feat-title">Confidence Scores</div>
+      <div class="feat-desc">Every result includes text confidence and font confidence — uncertain text marked red in HTML/docx.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-tag reveal">How it works</div>
+  <h2 class="section-title reveal">The OCR Pipeline <span class="accent">Step by Step</span></h2>
+  <p class="section-sub reveal">From raw image to clean Khmer text — 10 steps, two AI models, one clean output.</p>
+
+  <div class="pipeline">
+    <div class="pipeline-line"></div>
+
+    <div class="pipeline-step" data-step="0">
+      <div class="step-num" style="background:linear-gradient(135deg,#1A2240,#1E2845);color:var(--gold);border:2px solid var(--gold);">1</div>
+      <div class="step-content">
+        <div class="step-title">Load the Image or PDF</div>
+        <div class="step-desc">Accept a JPG, PNG, or PDF file. For PDFs, PyMuPDF renders each page as a 2× resolution RGB image for maximum detail.</div>
+        <span class="step-tag" style="background:rgba(240,180,41,0.1);color:var(--gold);border:1px solid rgba(240,180,41,0.3);">INPUT</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="1">
+      <div class="step-num" style="background:linear-gradient(135deg,#0D7377,#0A5C60);color:white;">2</div>
+      <div class="step-content">
+        <div class="step-title">Resize & Normalize for Detection</div>
+        <div class="step-desc">Resize image to 1024×1024 with black padding (preserving aspect ratio). Convert pixel values from 0–255 to 0.0–1.0. Rearrange axes to CHW format (channels first).</div>
+        <span class="step-tag" style="background:rgba(6,214,160,0.1);color:var(--teal);border:1px solid rgba(6,214,160,0.3);">PREPROCESS</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="2">
+      <div class="step-num" style="background:linear-gradient(135deg,#1A4A2A,#1A5C30);color:#56D364;">3</div>
+      <div class="step-content">
+        <div class="step-title">Detection Model — det.onnx</div>
+        <div class="step-desc">A YOLO-style neural network scans the entire image and outputs hundreds of candidate bounding boxes — each with x, y, width, height, and class probabilities (text vs. figure).</div>
+        <span class="step-tag" style="background:rgba(86,211,100,0.1);color:#56D364;border:1px solid rgba(86,211,100,0.3);">det.onnx</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="3">
+      <div class="step-num" style="background:linear-gradient(135deg,#4A2800,#5C3200);color:#FF9966;">4</div>
+      <div class="step-content">
+        <div class="step-title">Non-Maximum Suppression (NMS)</div>
+        <div class="step-desc">Multiple boxes often overlap around the same word. NMS keeps only the highest-confidence box for each region by removing any box that overlaps more than 45% with a better one (IoU > 0.45).</div>
+        <span class="step-tag" style="background:rgba(255,153,102,0.1);color:#FF9966;border:1px solid rgba(255,153,102,0.3);">FILTER</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="4">
+      <div class="step-num" style="background:linear-gradient(135deg,#2D1A5C,#38228A);color:#BB86FC;">5</div>
+      <div class="step-content">
+        <div class="step-title">Sort Boxes into Reading Lines</div>
+        <div class="step-desc">Boxes are grouped into text lines by comparing their Y positions. If two boxes' Y values differ by less than 50% of a box height, they're on the same line. Lines are then sorted top-to-bottom, words left-to-right.</div>
+        <span class="step-tag" style="background:rgba(187,134,252,0.1);color:#BB86FC;border:1px solid rgba(187,134,252,0.3);">SORT</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="5">
+      <div class="step-num" style="background:linear-gradient(135deg,#1A2240,#1E2845);color:var(--gold);border:2px solid var(--gold);">6</div>
+      <div class="step-content">
+        <div class="step-title">Crop Each Text Region</div>
+        <div class="step-desc">For every text bounding box, cut out that small piece from the original image using the detected coordinates. Skip figure boxes (class_id = 0) — those are saved as embedded images.</div>
+        <span class="step-tag" style="background:rgba(240,180,41,0.1);color:var(--gold);border:1px solid rgba(240,180,41,0.3);">CROP</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="6">
+      <div class="step-num" style="background:linear-gradient(135deg,#0D7377,#0A5C60);color:white;">7</div>
+      <div class="step-content">
+        <div class="step-title">Preprocess Each Crop for Recognition</div>
+        <div class="step-desc">Convert to grayscale (using luminosity formula: 0.299R + 0.587G + 0.114B). Resize to exactly 32px tall, keeping aspect ratio for width. Normalize to 0–1 range.</div>
+        <span class="step-tag" style="background:rgba(6,214,160,0.1);color:var(--teal);border:1px solid rgba(6,214,160,0.3);">PREPROCESS</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="7">
+      <div class="step-num" style="background:linear-gradient(135deg,#1A4A2A,#1A5C30);color:#56D364;">8</div>
+      <div class="step-content">
+        <div class="step-title">Recognition Model — rec.onnx</div>
+        <div class="step-desc">A CTC-based sequence model processes the 32px-tall grayscale image and outputs two things: (1) text_logits — character probabilities at each time step, and (2) font_logits — probabilities for each of 6 font styles.</div>
+        <span class="step-tag" style="background:rgba(86,211,100,0.1);color:#56D364;border:1px solid rgba(86,211,100,0.3);">rec.onnx</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="8">
+      <div class="step-num" style="background:linear-gradient(135deg,#4A2800,#5C3200);color:#FF9966;">9</div>
+      <div class="step-content">
+        <div class="step-title">CTC Decode → Final Text + Font</div>
+        <div class="step-desc">Apply softmax to get probabilities. Take argmax at each time step. Remove consecutive duplicate characters. Remove blank tokens. Apply softmax to font_logits and pick the highest — giving font style + confidence.</div>
+        <span class="step-tag" style="background:rgba(255,153,102,0.1);color:#FF9966;border:1px solid rgba(255,153,102,0.3);">DECODE</span>
+      </div>
+    </div>
+
+    <div class="pipeline-step" data-step="9">
+      <div class="step-num" style="background:linear-gradient(135deg,#2D1A5C,#38228A);color:#BB86FC;">10</div>
+      <div class="step-content">
+        <div class="step-title">Assemble & Export</div>
+        <div class="step-desc">All recognized text lines are assembled in reading order. Exported as .txt (plain), .md (Moul = **bold**), .html (CSS styled, red = uncertain), or .docx (Khmer/Moul fonts, embedded figures).</div>
+        <span class="step-tag" style="background:rgba(187,134,252,0.1);color:#BB86FC;border:1px solid rgba(187,134,252,0.3);">OUTPUT</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MODELS -->
+<section id="models">
+  <div class="section-tag reveal">AI Models</div>
+  <h2 class="section-title reveal">Two Brains, <span class="accent">One Engine</span></h2>
+  <p class="section-sub reveal">Both models are in ONNX format — run anywhere, on any device, without framework dependencies.</p>
+
+  <div class="models-grid reveal">
+    <div class="model-card model-card-det">
+      <div class="model-name">det.onnx</div>
+      <div class="model-size">11 MB · Detection Model</div>
+      <div class="model-job">Finds WHERE text is in the image. Draws bounding boxes around every text line and figure.</div>
+      <ul class="model-specs">
+        <li><span class="spec-key">Architecture</span><span class="spec-val">YOLO-style detector</span></li>
+        <li><span class="spec-key">Input Shape</span><span class="spec-val">1 × 3 × 1024 × 1024</span></li>
+        <li><span class="spec-key">Input Type</span><span class="spec-val">RGB, normalized 0→1</span></li>
+        <li><span class="spec-key">Output</span><span class="spec-val">Bounding boxes + probs</span></li>
+        <li><span class="spec-key">Classes</span><span class="spec-val">text (1) · figure (0)</span></li>
+        <li><span class="spec-key">Conf Threshold</span><span class="spec-val">0.25</span></li>
+        <li><span class="spec-key">NMS IoU</span><span class="spec-val">0.45</span></li>
+      </ul>
+    </div>
+
+    <div class="model-card model-card-rec">
+      <div class="model-name">rec.onnx</div>
+      <div class="model-size">14 MB · Recognition Model</div>
+      <div class="model-job">Reads WHAT the text says. Also detects font style — Regular, Bold, Italic, Moul, and more.</div>
+      <ul class="model-specs">
+        <li><span class="spec-key">Architecture</span><span class="spec-val">CTC sequence model</span></li>
+        <li><span class="spec-key">Input Shape</span><span class="spec-val">1 × 1 × 32 × W</span></li>
+        <li><span class="spec-key">Input Type</span><span class="spec-val">Grayscale, 32px tall</span></li>
+        <li><span class="spec-key">Output 1</span><span class="spec-val">text_logits (chars)</span></li>
+        <li><span class="spec-key">Output 2</span><span class="spec-val">font_logits (6 styles)</span></li>
+        <li><span class="spec-key">Vocabulary</span><span class="spec-val">98 Khmer characters</span></li>
+        <li><span class="spec-key">Font Styles</span><span class="spec-val">Regular · Bold · Italic · BoldItalic · Moul · MoulLight</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FILE STRUCTURE -->
+<section id="files">
+  <div class="section-tag reveal">Project Structure</div>
+  <h2 class="section-title reveal">Every File, <span class="accent">Explained</span></h2>
+
+  <div class="file-tree reveal">
+    <div class="tree-header">
+      <div class="tree-dot tree-dot-r"></div>
+      <div class="tree-dot tree-dot-y"></div>
+      <div class="tree-dot tree-dot-g"></div>
+      <span class="tree-name">seanghay / KhmerOCR</span>
+    </div>
+    <div class="tree-body">
+
+      <div class="tree-item">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">khmerocr/</span>
+        <span class="tree-desc">Main Python package folder</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🐍</span>
+        <span class="tree-filename py">__init__.py</span>
+        <span class="tree-desc">Core engine — loads models, implements detect() and recognize(), NMS, CTC decoding, softmax</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🐍</span>
+        <span class="tree-filename py">cli.py</span>
+        <span class="tree-desc">CLI tool — accepts image/PDF input, exports to .txt / .md / .html / .docx with font-aware formatting</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🧠</span>
+        <span class="tree-filename model">det.onnx</span>
+        <span class="tree-desc">11MB detection model — YOLO-style, finds text and figure bounding boxes in 1024×1024 image</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🧠</span>
+        <span class="tree-filename model">rec.onnx</span>
+        <span class="tree-desc">14MB recognition model — CTC decoder, reads 98 Khmer chars + detects 6 font styles</span>
+      </div>
+
+      <div class="tree-item" style="margin-top:8px">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">cpp/</span>
+        <span class="tree-desc">Native C++ engine — same pipeline, maximum performance</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">src/</span>
+        <span class="tree-desc">C++ source files</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">khmerocr.cpp</span>
+        <span class="tree-desc">Main engine — combines Detector + Recognizer, exports C API for FFI</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">detector.cpp</span>
+        <span class="tree-desc">Detection pipeline — ONNX Runtime C++ API, parses model output</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">recognizer.cpp</span>
+        <span class="tree-desc">Recognition pipeline — CTC decoding, UTF-8 Khmer token lookup</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">image_utils.cpp</span>
+        <span class="tree-desc">Image processing — grayscale, bilinear resize, crop, CHW normalize</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">nms.cpp</span>
+        <span class="tree-desc">Non-Maximum Suppression + reading-order line sorting</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">cli/</span>
+        <span class="tree-desc">C++ command-line tool</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">⚙️</span>
+        <span class="tree-filename cpp">main.cpp</span>
+        <span class="tree-desc">Standalone binary with --detect-only, --recognize-only, --json flags</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">📄</span>
+        <span class="tree-filename">stb_image.h</span>
+        <span class="tree-desc">Single-header image loader — loads JPG/PNG with zero extra dependencies</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">include/khmerocr/</span>
+        <span class="tree-desc">C++ headers — types.h, detector.h, recognizer.h, image_utils.h, khmerocr.h</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">cmake/</span>
+        <span class="tree-desc">Build helpers</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">🔨</span>
+        <span class="tree-filename cmake">FindONNXRuntime.cmake</span>
+        <span class="tree-desc">Locates ONNX Runtime on macOS, Linux, Windows</span>
+      </div>
+      <div class="tree-item tree-indent2">
+        <span class="tree-icon">🔨</span>
+        <span class="tree-filename cmake">Platform.cmake</span>
+        <span class="tree-desc">Platform flags for iOS, Android, Windows, macOS, Linux</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🔨</span>
+        <span class="tree-filename cmake">CMakeLists.txt</span>
+        <span class="tree-desc">Build config — defines shared library, CLI binary, tests, install targets</span>
+      </div>
+
+      <div class="tree-item" style="margin-top:8px">
+        <span class="tree-icon">📁</span>
+        <span class="tree-filename dir">scripts/</span>
+        <span class="tree-desc">Utility scripts</span>
+      </div>
+      <div class="tree-item tree-indent">
+        <span class="tree-icon">🐍</span>
+        <span class="tree-filename py">convert_to_coreml.py</span>
+        <span class="tree-desc">Converts det.onnx + rec.onnx → Apple CoreML .mlpackage for iOS/macOS Neural Engine</span>
+      </div>
+
+      <div class="tree-item" style="margin-top:8px">
+        <span class="tree-icon">📄</span>
+        <span class="tree-filename py">pyproject.toml</span>
+        <span class="tree-desc">Python package config — name, version, dependencies, CLI entry point (khmerocr command)</span>
+      </div>
+      <div class="tree-item">
+        <span class="tree-icon">📄</span>
+        <span class="tree-filename">README.md</span>
+        <span class="tree-desc">Project overview, installation, usage examples, milestones</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CODE -->
+<section id="code">
+  <div class="section-tag reveal">Code Examples</div>
+  <h2 class="section-title reveal">Using It in <span class="accent">Python</span></h2>
+
+  <div class="reveal">
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python — install</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment"># Install from GitHub (includes models automatically)</span><br>
+        <span class="c-normal">pip install git+https://github.com/seanghay/KhmerOCR</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python — basic usage</span>
+      </div>
+      <div class="code-body">
+        <span class="c-keyword">from</span> <span class="c-normal">PIL</span> <span class="c-keyword">import</span> <span class="c-normal">Image</span><br>
+        <span class="c-keyword">from</span> <span class="c-normal">khmerocr</span> <span class="c-keyword">import</span> <span class="c-normal">detect, recognize</span><br>
+        <br>
+        <span class="c-comment"># Load your image</span><br>
+        <span class="c-var">img</span> <span class="c-normal">= Image.</span><span class="c-func">open</span><span class="c-normal">(</span><span class="c-string">'khmer_document.jpg'</span><span class="c-normal">)</span><br>
+        <br>
+        <span class="c-comment"># Step 1: find text regions</span><br>
+        <span class="c-var">lines</span> <span class="c-normal">= </span><span class="c-func">detect</span><span class="c-normal">(img)</span><br>
+        <br>
+        <span class="c-comment"># Step 2: read each box</span><br>
+        <span class="c-keyword">for</span> <span class="c-var">line</span> <span class="c-keyword">in</span> <span class="c-var">lines</span><span class="c-normal">:</span><br>
+        &nbsp;&nbsp;<span class="c-keyword">for</span> <span class="c-var">box</span> <span class="c-keyword">in</span> <span class="c-var">line</span><span class="c-normal">:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="c-var">x1, y1, x2, y2</span> <span class="c-normal">= box[:</span><span class="c-num">4</span><span class="c-normal">]</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="c-var">class_id</span> <span class="c-normal">= </span><span class="c-func">int</span><span class="c-normal">(box[</span><span class="c-num">4</span><span class="c-normal">])</span>  <span class="c-comment"># 0=figure, 1=text</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="c-keyword">if</span> <span class="c-var">class_id</span> <span class="c-normal">==</span> <span class="c-num">1</span><span class="c-normal">:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-var">result</span> <span class="c-normal">= </span><span class="c-func">recognize</span><span class="c-normal">(img.</span><span class="c-func">crop</span><span class="c-normal">((x1, y1, x2, y2)))</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-func">print</span><span class="c-normal">(result[</span><span class="c-string">'text'</span><span class="c-normal">], </span><span class="c-string">'|'</span><span class="c-normal">, result[</span><span class="c-string">'font'</span><span class="c-normal">])</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">shell — CLI commands</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment"># Image → plain text</span><br>
+        <span class="c-normal">khmerocr document.jpg</span><br>
+        <br>
+        <span class="c-comment"># Image → Word document</span><br>
+        <span class="c-normal">khmerocr document.jpg --format docx</span><br>
+        <br>
+        <span class="c-comment"># PDF → Markdown</span><br>
+        <span class="c-normal">khmerocr report.pdf --format md</span><br>
+        <br>
+        <span class="c-comment"># Custom output path</span><br>
+        <span class="c-normal">khmerocr scan.png -o result/output.html --format html</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">c — C API (for any language)</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment">// Create engine</span><br>
+        <span class="c-type">khmerocr_t</span> <span class="c-var">ocr</span> <span class="c-normal">= </span><span class="c-func">khmerocr_create</span><span class="c-normal">(</span><span class="c-string">"/path/to/models"</span><span class="c-normal">);</span><br>
+        <br>
+        <span class="c-comment">// Recognize text from image data</span><br>
+        <span class="c-type">float</span> <span class="c-var">confidence</span><span class="c-normal">;</span><br>
+        <span class="c-type">char</span><span class="c-normal">* </span><span class="c-var">text</span> <span class="c-normal">= </span><span class="c-func">khmerocr_recognize</span><span class="c-normal">(ocr, data, w, h, </span><span class="c-num">3</span><span class="c-normal">, &amp;confidence);</span><br>
+        <br>
+        <span class="c-func">printf</span><span class="c-normal">(</span><span class="c-string">"Text: %s (%.0f%%)\n"</span><span class="c-normal">, text, confidence * </span><span class="c-num">100</span><span class="c-normal">);</span><br>
+        <br>
+        <span class="c-func">khmerocr_free_string</span><span class="c-normal">(text);</span><br>
+        <span class="c-func">khmerocr_destroy</span><span class="c-normal">(ocr);</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ALGORITHMS -->
+<section id="algorithms">
+  <div class="section-tag reveal">Under the hood</div>
+  <h2 class="section-title reveal">Key Algorithms <span class="accent">Explained Simply</span></h2>
+
+  <div class="algo-tabs reveal">
+    <button class="algo-tab active" onclick="showAlgo('nms', this)">NMS</button>
+    <button class="algo-tab" onclick="showAlgo('ctc', this)">CTC Decoding</button>
+    <button class="algo-tab" onclick="showAlgo('lines', this)">Line Sorting</button>
+    <button class="algo-tab" onclick="showAlgo('preprocess', this)">Image Prep</button>
+  </div>
+
+  <div class="reveal">
+    <div class="algo-panel active" id="algo-nms">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:20px;font-weight:400;line-height:1.6;">
+        <strong style="color:var(--text)">Non-Maximum Suppression (NMS)</strong> — After detection, many overlapping boxes cover the same word. NMS keeps only the best one.
+      </p>
+      <ol class="algo-steps">
+        <li><span class="algo-step-text">Sort all detected boxes by <strong>confidence score</strong>, highest first</span></li>
+        <li><span class="algo-step-text">Take the top box — it's the most confident — and <strong>add it to the keep list</strong></span></li>
+        <li><span class="algo-step-text">Calculate the <strong>IoU (Intersection over Union)</strong> between this box and every remaining box</span></li>
+        <li><span class="algo-step-text"><strong>Remove any box</strong> that overlaps more than 45% with the kept box (IoU > 0.45)</span></li>
+        <li><span class="algo-step-text">Move to the next remaining box and <strong>repeat</strong> until all boxes are processed</span></li>
+        <li><span class="algo-step-text">Result: one clean box per word, <strong>no duplicates</strong></span></li>
+      </ol>
+    </div>
+
+    <div class="algo-panel" id="algo-ctc">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:20px;font-weight:400;line-height:1.6;">
+        <strong style="color:var(--text)">CTC Decoding</strong> — The recognition model outputs character probabilities at every time step. CTC turns this noisy sequence into clean text.
+      </p>
+      <ol class="algo-steps">
+        <li><span class="algo-step-text">The model outputs a probability distribution over <strong>98 Khmer characters + blank token</strong> at each time step</span></li>
+        <li><span class="algo-step-text">Apply <strong>softmax</strong> to convert raw logits to probabilities (values that sum to 1)</span></li>
+        <li><span class="algo-step-text">At each step, pick the <strong>argmax</strong> — the character with highest probability</span></li>
+        <li><span class="algo-step-text">Remove <strong>consecutive duplicate characters</strong> — e.g. k, k, k, k → k</span></li>
+        <li><span class="algo-step-text">Remove all <strong>blank tokens</strong> (special symbol used during training to handle gaps)</span></li>
+        <li><span class="algo-step-text">Remaining characters form the <strong>final recognized word</strong> with average confidence score</span></li>
+      </ol>
+    </div>
+
+    <div class="algo-panel" id="algo-lines">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:20px;font-weight:400;line-height:1.6;">
+        <strong style="color:var(--text)">Line Sorting</strong> — After NMS, boxes must be grouped into reading lines and sorted in natural reading order.
+      </p>
+      <ol class="algo-steps">
+        <li><span class="algo-step-text">Sort all boxes by their <strong>Y position</strong> (top of image = first)</span></li>
+        <li><span class="algo-step-text">Start the first line with the <strong>topmost box</strong></span></li>
+        <li><span class="algo-step-text">For each next box, check if its Y value differs from the current line's last box by <strong>less than 50% of box height</strong></span></li>
+        <li><span class="algo-step-text">If <strong>yes</strong> → same line, append to current line</span></li>
+        <li><span class="algo-step-text">If <strong>no</strong> → new line started</span></li>
+        <li><span class="algo-step-text">Within each line, sort boxes by <strong>X position</strong> (left → right) for natural reading order</span></li>
+      </ol>
+    </div>
+
+    <div class="algo-panel" id="algo-preprocess">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:20px;font-weight:400;line-height:1.6;">
+        <strong style="color:var(--text)">Image Preprocessing</strong> — Raw images must be transformed before feeding into the neural network.
+      </p>
+      <ol class="algo-steps">
+        <li><span class="algo-step-text"><strong>Resize to 1024×1024</strong> — detection model expects fixed input; black-pad sides to preserve aspect ratio</span></li>
+        <li><span class="algo-step-text"><strong>Normalize pixels</strong> — divide all values by 255 to map 0–255 range to 0.0–1.0</span></li>
+        <li><span class="algo-step-text"><strong>CHW format</strong> — rearrange from Height×Width×Channel to Channel×Height×Width (PyTorch convention)</span></li>
+        <li><span class="algo-step-text"><strong>Grayscale conversion</strong> for recognition: gray = 0.299R + 0.587G + 0.114B (luminosity formula)</span></li>
+        <li><span class="algo-step-text"><strong>Resize to 32px tall</strong> — recognition model was trained on 32px height; width scales proportionally</span></li>
+        <li><span class="algo-step-text"><strong>Bilinear interpolation</strong> — smooth, artifact-free resizing for both upscaling and downscaling</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DATA FLOW -->
+<section id="flow">
+  <div class="section-tag reveal">Architecture</div>
+  <h2 class="section-title reveal">Complete <span class="accent">Data Flow</span></h2>
+  <p class="section-sub reveal">How data moves through the entire system from input to output.</p>
+
+  <div class="flow-diagram reveal">
+    <div class="flow-node" style="border-color:var(--gold);background:rgba(240,180,41,0.06);">
+      <div class="flow-node-icon" style="background:rgba(240,180,41,0.15);">📸</div>
+      <div>
+        <div class="flow-node-title">INPUT</div>
+        <div class="flow-node-desc">Image (.jpg/.png) or PDF file</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <div class="flow-node-icon" style="background:rgba(6,214,160,0.15);">⚙️</div>
+      <div>
+        <div class="flow-node-title">PREPROCESS</div>
+        <div class="flow-node-desc">Resize → 1024×1024  ·  Normalize 0→1  ·  CHW format</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--gold);">
+      <div class="flow-node-icon" style="background:rgba(240,180,41,0.15);">🧠</div>
+      <div>
+        <div class="flow-node-title">det.onnx — DETECTION</div>
+        <div class="flow-node-desc">YOLO model outputs bounding boxes with class probabilities</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <div class="flow-node-icon" style="background:rgba(255,153,102,0.15);">🎯</div>
+      <div>
+        <div class="flow-node-title">NMS + LINE SORT</div>
+        <div class="flow-node-desc">Remove duplicate boxes  ·  Group into reading lines  ·  Sort left→right</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <div class="flow-node-icon" style="background:rgba(187,134,252,0.15);">✂️</div>
+      <div>
+        <div class="flow-node-title">CROP EACH TEXT BOX</div>
+        <div class="flow-node-desc">Cut out each word/line region from original image</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <div class="flow-node-icon" style="background:rgba(6,214,160,0.15);">🔲</div>
+      <div>
+        <div class="flow-node-title">PREPROCESS CROP</div>
+        <div class="flow-node-desc">Grayscale  ·  Resize to 32px tall  ·  Normalize</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--teal);">
+      <div class="flow-node-icon" style="background:rgba(6,214,160,0.15);">🧠</div>
+      <div>
+        <div class="flow-node-title">rec.onnx — RECOGNITION</div>
+        <div class="flow-node-desc">CTC model → text_logits + font_logits</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node">
+      <div class="flow-node-icon" style="background:rgba(86,211,100,0.15);">🔤</div>
+      <div>
+        <div class="flow-node-title">CTC DECODE</div>
+        <div class="flow-node-desc">Softmax → argmax → remove blanks/duplicates → Khmer text + font + confidence</div>
+      </div>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--teal);background:rgba(6,214,160,0.06);">
+      <div class="flow-node-icon" style="background:rgba(6,214,160,0.15);">📤</div>
+      <div>
+        <div class="flow-node-title">OUTPUT</div>
+        <div class="flow-node-desc">Assembled text → .txt  ·  .md  ·  .html  ·  .docx</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="section-tag reveal">Get Started</div>
+  <h2 class="section-title reveal">Install & <span class="accent">Run It</span></h2>
+
+  <div class="reveal">
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python — pip install</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment"># Install directly from GitHub</span><br>
+        <span class="c-normal">pip install git+https://github.com/seanghay/KhmerOCR</span><br>
+        <br>
+        <span class="c-comment"># This automatically installs:</span><br>
+        <span class="c-comment"># numpy · pillow · onnxruntime · click · python-docx · PyMuPDF</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">c++ — build from source</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment"># Requirements: cmake 3.16+, C++17 compiler, ONNX Runtime 1.14+</span><br>
+        <span class="c-normal">cd cpp</span><br>
+        <span class="c-normal">mkdir build && cd build</span><br>
+        <span class="c-normal">cmake .. -DCMAKE_BUILD_TYPE=Release</span><br>
+        <span class="c-normal">make -j$(nproc)</span><br>
+        <br>
+        <span class="c-comment"># Then run:</span><br>
+        <span class="c-normal">./khmerocr image.png</span><br>
+        <span class="c-normal">./khmerocr -j image.png</span>  <span class="c-comment"># JSON output</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python — coreml conversion (macOS only)</span>
+      </div>
+      <div class="code-body">
+        <span class="c-normal">pip install coremltools onnx numpy</span><br>
+        <br>
+        <span class="c-comment"># Convert both models to .mlpackage</span><br>
+        <span class="c-normal">python scripts/convert_to_coreml.py</span><br>
+        <br>
+        <span class="c-comment"># Float16 for smaller size (~50% smaller)</span><br>
+        <span class="c-normal">python scripts/convert_to_coreml.py --fp16</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+<footer>
+  <p>Built by <strong>Seanghay Yath</strong> · MIT License · <a href="https://github.com/seanghay/KhmerOCR">github.com/seanghay/KhmerOCR</a></p>
+  <p style="margin-top:8px;font-size:11px;">Guide generated with Claude · 2026</p>
+</footer>
+
+<script>
+// ─── Theme Toggle ─────────────────────────────────────────────────────────────
+const toggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+
+// Load saved preference
+const saved = localStorage.getItem('theme');
+if (saved === 'light') { html.classList.add('light'); toggle.checked = true; }
+
+toggle.addEventListener('change', () => {
+  if (toggle.checked) {
+    html.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  } else {
+    html.classList.remove('light');
+    localStorage.setItem('theme', 'dark');
+  }
+});
+
+// ─── Scroll Reveal ────────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── Pipeline Steps Staggered Reveal ─────────────────────────────────────────
+const stepObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = parseInt(e.target.dataset.step) * 80;
+      setTimeout(() => e.target.classList.add('visible'), delay);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.pipeline-step').forEach(el => stepObserver.observe(el));
+
+// ─── Algo Tabs ────────────────────────────────────────────────────────────────
+function showAlgo(id, btn) {
+  document.querySelectorAll('.algo-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.algo-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('algo-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── Active Nav Link ──────────────────────────────────────────────────────────
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--gold)' : '';
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
