@@ -1,6 +1,6 @@
 # KhmerOCR — Khmer Optical Character Recognition Engine
 
-> 🌐 **Live Demo:** [demo](examp.html)
+> 🌐 **Live Demo:** [demo](https://khmer-orc-case-study2.netlify.app/)
 
 > **This is original research and engineering work.** All model training, architecture design, data pipeline construction, and implementation were conducted independently by the author. This document serves as a clear record of authorship, methodology, and intellectual contribution.
 
